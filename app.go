@@ -12,22 +12,21 @@ import (
 )
 
 var (
-	bot   *tgbotapi.BotAPI
+	bot    *tgbotapi.BotAPI
 	botErr error
-	TOKEN = os.Getenv("BOT_TOKEN")
-	URL   = os.Getenv("URL")
+	TOKEN  = os.Getenv("BOT_TOKEN")
+	URL    = os.Getenv("URL")
 )
 
 func init() {
-	log.Printf("TOKEN: %s", TOKEN)
 	log.Printf("URL: %s", URL)
-	
+
 	if TOKEN == "" {
 		botErr = fmt.Errorf("BOT_TOKEN environment variable not set")
 		log.Printf("Error: %v", botErr)
 		return
 	}
-	
+
 	var err error
 	bot, err = tgbotapi.NewBotAPI(TOKEN)
 	if err != nil {
@@ -35,7 +34,7 @@ func init() {
 		log.Printf("Failed to create bot: %v", err)
 		return
 	}
-	
+
 	log.Printf("Bot initialized successfully")
 }
 
@@ -83,7 +82,7 @@ func respond(w http.ResponseWriter, r *http.Request) {
 
 func setWebhook(w http.ResponseWriter, r *http.Request) {
 	webhookURL := fmt.Sprintf("%s%s", URL, TOKEN)
-	log.Printf("Setting webhook to: %s", webhookURL)
+	log.Printf("Setting webhook")
 
 	// Direct HTTP call to Telegram API
 	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/setWebhook?url=%s", TOKEN, webhookURL)
@@ -115,7 +114,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	
+
 	addr := fmt.Sprintf(":%s", port)
 	log.Printf("Starting server on %s", addr)
 	if err := http.ListenAndServe(addr, nil); err != nil {
