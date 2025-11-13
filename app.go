@@ -13,16 +13,30 @@ import (
 
 var (
 	bot   *tgbotapi.BotAPI
+	botErr error
 	TOKEN = os.Getenv("BOT_TOKEN")
 	URL   = os.Getenv("URL")
 )
 
 func init() {
+	log.Printf("TOKEN: %s", TOKEN)
+	log.Printf("URL: %s", URL)
+	
+	if TOKEN == "" {
+		botErr = fmt.Errorf("BOT_TOKEN environment variable not set")
+		log.Printf("Error: %v", botErr)
+		return
+	}
+	
 	var err error
 	bot, err = tgbotapi.NewBotAPI(TOKEN)
 	if err != nil {
-		log.Fatalf("Failed to create bot: %v", err)
+		botErr = err
+		log.Printf("Failed to create bot: %v", err)
+		return
 	}
+	
+	log.Printf("Bot initialized successfully")
 }
 
 func respond(w http.ResponseWriter, r *http.Request) {
