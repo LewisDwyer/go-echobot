@@ -110,8 +110,15 @@ func main() {
 	http.HandleFunc("/setwebhook", setWebhook)
 	http.HandleFunc("/", index)
 
-	log.Println("Starting server on :8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	// Get port from environment or default to 8080
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	
+	addr := fmt.Sprintf(":%s", port)
+	log.Printf("Starting server on %s", addr)
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalf("Server failed: %v", err)
 	}
 }
