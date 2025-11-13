@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -70,26 +69,20 @@ func respond(w http.ResponseWriter, r *http.Request) {
 
 func setWebhook(w http.ResponseWriter, r *http.Request) {
 	webhookURL := fmt.Sprintf("%s%s", URL, TOKEN)
+	log.Printf("Setting webhook to: %s", webhookURL)
 
-	// Parse URL
-	parsedURL, err := url.Parse(webhookURL)
-	if err != nil {
-		log.Printf("URL parse error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "webhook setup failed")
-		return
-	}
-
-	// Create webhook config
-	config := tgbotapi.WebhookConfig{URL: parsedURL}
-
-	_, err = bot.Request(config)
+	// Direct HTTP call to Telegram API
+	apiURL := fmt.Sprintf("https://api.telegram.org/bot%s/setWebhook?url=%s", TOKEN, webhookURL)
+	resp, err := http.Get(apiURL)
 	if err != nil {
 		log.Printf("Webhook error: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "webhook setup failed")
 		return
 	}
+	defer resp.Body.Close()
+
+	log.Printf("Webhook response status: %d", resp.StatusCode)
 	fmt.Fprint(w, "webhook setup ok")
 }
 
